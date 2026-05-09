@@ -3,7 +3,7 @@
 ![Badge](https://img.shields.io/badge/Ubuntu-26.04-orange)
 ![Badge](https://img.shields.io/badge/Arch-compatible-blue)
 ![Badge](https://img.shields.io/badge/Fedora-compatible-lightblue)
-![Badge](https://img.shields.io/badge/Maintainer-[Tu nombre]-green)
+![Badge](https://img.shields.io/badge/Maintainer-obviousfancy-green)
 
 Configuración reproducible de entorno para desarrollo de sistemas embebidos en Linux. Automatiza la instalación y configuración de herramientas de hardware, desarrollo y debug.
 
