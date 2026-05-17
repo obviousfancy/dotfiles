@@ -11,27 +11,32 @@ mkdir -p "$(dirname "$LOG_FILE")"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 # =============================================================================
-# FUNCIONES DE INSTALACIÓN — aquí pegas tu código
+# FUNCIONES DE INSTALACIÓN
 # =============================================================================
 
 install_arm_toolchain() {
     section "ARM GCC Toolchain"
     log "Iniciando instalación de ARM GCC..."
 
-    # ─── PEGA TU CÓDIGO AQUÍ ────────────────────────────────────────────────
     case $PKG_MANAGER in
         apt)
-            # gcc-arm-none-eabi, binutils-arm-none-eabi, etc.
+            sudo apt install -y \
+                gcc-arm-none-eabi \
+                binutils-arm-none-eabi \
+                libnewlib-arm-none-eabi \
+                gdb-multiarch \
+                cmake \
+                ninja-build \
+                make
             ;;
         dnf)
+            sudo dnf install -y arm-none-eabi-gcc arm-none-eabi-binutils cmake ninja-build make
             ;;
         pacman)
+            sudo pacman -S --noconfirm arm-none-eabi-gcc arm-none-eabi-binutils cmake ninja make
             ;;
     esac
-    # ────────────────────────────────────────────────────────────────────────
 
-    # Verificar que quedó instalado
-    # "command -v" retorna 0 (éxito) si existe, 1 si no
     if command -v arm-none-eabi-gcc &>/dev/null; then
         VERSION=$(arm-none-eabi-gcc --version | head -1)
         success "ARM GCC listo: $VERSION"
@@ -45,52 +50,56 @@ install_stm32cubeide() {
     section "STM32CubeIDE"
     log "Buscando instalador de STM32CubeIDE..."
 
-    # Semi-automático: busca el instalador en ~/Downloads
-    # "${HOME}" es equivalente a "~" pero funciona mejor dentro de scripts
     INSTALLER=$(find "${HOME}/Downloads" -name "st-stm32cubeide_*.sh" 2>/dev/null | head -1)
-    INSTALLERMX=$(find "${HOME}/Downloads" -name "stm32cubemx*.sh" 2>/dev/null | head -1)  # Algunos nombres de instalador tienen este formato
+    INSTALLERMX=$(find "${HOME}/Downloads" -name "stm32cubemx*.zip" 2>/dev/null | head -1)
+
     if [ -z "$INSTALLER" ]; then
-        # -z significa "si la variable está vacía"
         warn "Instalador no encontrado en ~/Downloads"
         echo ""
-        echo -e "  ${CYAN}Pasos para obtenerlo:${NC}"
         echo -e "  ${CYAN}1.${NC} Ve a: https://www.st.com/en/development-tools/stm32cubeide.html"
         echo -e "  ${CYAN}2.${NC} Crea cuenta gratuita en st.com"
         echo -e "  ${CYAN}3.${NC} Descarga el instalador .sh para Linux"
         echo -e "  ${CYAN}4.${NC} Guárdalo en ~/Downloads"
         echo -e "  ${CYAN}5.${NC} Vuelve a ejecutar este script"
         echo ""
-        warn "Abriendo navegador..."
         xdg-open "https://www.st.com/en/development-tools/stm32cubeide.html" 2>/dev/null
         return 1
     fi
 
-    log "Instalador encontrado: $(basename "$INSTALLER")"
-
-    # ─── PEGA TU CÓDIGO DE INSTALACIÓN AQUÍ ─────────────────────────────────
-    # chmod +x "$INSTALLER"
-    # sudo "$INSTALLER"
-    # configurar reglas udev para ST-Link
-
-    # ────────────────────────────────────────────────────────────────────────
-
+    log "Instalador CubeIDE encontrado: $(basename "$INSTALLER")"
     chmod +x "$INSTALLER"
-    unzip "$INSTALLER" -d /tmp/stm32cubeide
-    sudo ./tmp/stm32cubeide<version>/install.sh --mode unattended --prefix /opt/stm32cubeide
-    # El comando anterior es un ejemplo, debes ajustarlo al nombre exacto del instalador que descargues
+    sudo "$INSTALLER"
 
-    # Verificar que quedó instalado
     if [ -d "/opt/stm32cubeide" ]; then
         success "STM32CubeIDE instalado en /opt/stm32cubeide"
     else
-        error "No se encontró la instalación de STM32CubeIDE después de ejecutar el instalador"
+        error "No se encontró la instalación después de ejecutar el instalador"
+        return 1
     fi
 
-    # Instalar STM32CUBE MX
-    chmod +x "$INSTALLERMX"
-    sudo ./"$INSTALLERMX" 
+    # Instalar STM32CubeMX si también se descargó
+    if [ -n "$INSTALLERMX" ]; then
+        log "Instalador CubeMX encontrado: $(basename "$INSTALLERMX")"
+        TMPDIR=$(mktemp -d)
+        unzip -q "$INSTALLERMX" -d "$TMPDIR"
+        chmod +x "$TMPDIR/SetupSTM32CubeMX"*
+        sudo "$TMPDIR/SetupSTM32CubeMX"*
+        rm -rf "$TMPDIR"
+        success "STM32CubeMX instalado"
+    else
+        warn "STM32CubeMX no encontrado en ~/Downloads — solo se instaló CubeIDE"
+    fi
 
-    success "STM32CubeIDE and Cube MX installed"
+    # Reglas udev para ST-Link sin sudo
+    UDEV_RULES=$(find /opt/stm32cubeide -name "*.rules" 2>/dev/null | head -1)
+    if [ -n "$UDEV_RULES" ]; then
+        sudo cp "$UDEV_RULES" /etc/udev/rules.d/
+        sudo udevadm control --reload-rules
+        sudo usermod -aG plugdev "$USER"
+        warn "Reinicia sesión para acceso a ST-Link sin sudo"
+    fi
+
+    success "STM32CubeIDE instalado correctamente"
 }
 
 # -----------------------------------------------------------------------------
@@ -98,43 +107,53 @@ install_openocd() {
     section "OpenOCD"
     log "Iniciando instalación de OpenOCD..."
 
-    # ─── PEGA TU CÓDIGO AQUÍ ────────────────────────────────────────────────
     case $PKG_MANAGER in
-        apt)    ;;
-        dnf)    ;;
-        pacman) ;;
+        apt)    sudo apt install -y openocd ;;
+        dnf)    sudo dnf install -y openocd ;;
+        pacman) sudo pacman -S --noconfirm openocd ;;
     esac
-    # ────────────────────────────────────────────────────────────────────────
+
+    # Reglas udev para acceso a debuggers sin sudo
+    if [ -f /usr/share/openocd/contrib/60-openocd.rules ]; then
+        sudo cp /usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d/
+        sudo udevadm control --reload-rules
+        sudo usermod -aG plugdev "$USER"
+    fi
 
     success "OpenOCD instalado"
-    warn "Recuerda reiniciar sesión para que los permisos USB surtan efecto"
+    warn "Reinicia sesión para que los permisos USB surtan efecto"
 }
 
 # -----------------------------------------------------------------------------
 install_bat() {
     section "bat (cat con syntax highlighting)"
-    log "Iniciando instalación de bat..."
+    log "Instalando bat..."
 
-    # ─── PEGA TU CÓDIGO AQUÍ ────────────────────────────────────────────────
-    # En Ubuntu: sudo apt install bat
-    # Nota: en Ubuntu el binario se llama "batcat", no "bat"
-    # Para usar como "bat" hay que hacer un alias o symlink:
-    #   mkdir -p ~/.local/bin
-    #   ln -s /usr/bin/batcat ~/.local/bin/bat
+    case $PKG_MANAGER in
+        apt)
+            sudo apt install -y bat
 
-    # ────────────────────────────────────────────────────────────────────────
+            # En Ubuntu el binario se llama batcat — crear symlink para usar como bat
+            mkdir -p "$HOME/.local/bin"
+            ln -sf /usr/bin/batcat "$HOME/.local/bin/bat"
 
-    sudo apt install bat -y
-
-    batcat ~/.bashrc
-
-    alias bat='batcat'                        #Add an alias to the batcat at this sesion terminal
-
-    echo "alias bat='batcat'" >> ~/.bashrc    #Add the alias at the end of file bashrc
-
-    source ~/.bashrc                          #Refresh the bashrc for keep working
+            # Agregar ~/.local/bin al PATH si no está ya
+            # grep -q busca silenciosamente — retorna 0 si encuentra, 1 si no
+            if ! grep -q 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc"; then
+                echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
+                log "PATH actualizado en ~/.bashrc"
+            fi
+            ;;
+        dnf)
+            sudo dnf install -y bat
+            ;;
+        pacman)
+            sudo pacman -S --noconfirm bat
+            ;;
+    esac
 
     success "bat instalado"
+    warn "Abre una terminal nueva para usar el comando 'bat'"
 }
 
 # -----------------------------------------------------------------------------
@@ -142,38 +161,44 @@ configure_terminal_colors() {
     section "Colores y tema de terminal"
     log "Aplicando configuración de colores..."
 
-    # Este es un caso especial: no instala nada, copia archivos de config
-    # Los archivos de config van en la carpeta configs/ del repo
     CONFIGS_DIR="$(dirname "$0")/../configs"
+    BASHRC="$HOME/.bashrc"
 
-    # ─── PEGA TU CÓDIGO AQUÍ ────────────────────────────────────────────────
-    # Ejemplo de lo que podrías hacer:
-    #
-    # Copiar tu .bashrc personalizado:
-    #   cp "$CONFIGS_DIR/.bashrc" ~/.bashrc
-    #
-    # Copiar configuración de colores de dircolors:
-    #   cp "$CONFIGS_DIR/.dircolors" ~/.dircolors
-    #
-    # Aplicar sin reiniciar terminal:
-    #   source ~/.bashrc
+    # Activar prompt con colores
+    # sed -i edita el archivo en sitio (in-place)
+    # Reemplaza "#force_color_prompt=yes" por "force_color_prompt=yes" si existe
+    if grep -q "^#force_color_prompt=yes" "$BASHRC"; then
+        sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' "$BASHRC"
+        success "force_color_prompt activado en ~/.bashrc"
+    elif grep -q "^force_color_prompt=yes" "$BASHRC"; then
+        warn "force_color_prompt ya estaba activado"
+    else
+        echo "force_color_prompt=yes" >> "$BASHRC"
+        log "force_color_prompt agregado al final de ~/.bashrc"
+    fi
 
-     nano ~/.bashrc
-    # We add force_color_prompt=yes , for view colors in terminal, and we add source ~/.bashrc for apply the changes without restart the terminal
+    # Copiar .dircolors si existe en configs/
+    if [ -f "$CONFIGS_DIR/.dircolors" ]; then
+        cp "$CONFIGS_DIR/.dircolors" "$HOME/.dircolors"
+        # Agregar carga de dircolors si no está ya en .bashrc
+        if ! grep -q "dircolors" "$BASHRC"; then
+            echo 'eval "$(dircolors -b ~/.dircolors)"' >> "$BASHRC"
+        fi
+        success ".dircolors aplicado"
+    else
+        warn "No se encontró configs/.dircolors — agrega tu configuración ahí"
+    fi
 
-     echo "force_color_prompt=yes" >> ~/.bashrc
-     echo "source ~/.bashrc" >> ~/.bashrc
+    # NO hacer source ~/.bashrc aquí — causa loop infinito cuando
+    # .bashrc llama a source y source vuelve a cargar .bashrc
+    # El usuario debe abrir una terminal nueva
 
-     source ~/.bashrc
-
-    # ────────────────────────────────────────────────────────────────────────
-
-    success "Colores de terminal configurados"
+    success "Colores configurados"
     warn "Abre una terminal nueva para ver los cambios"
 }
 
 # =============================================================================
-# MENÚ — no modificar esta sección
+# MENÚ
 # =============================================================================
 
 show_menu() {

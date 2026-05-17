@@ -1,15 +1,8 @@
 #!/bin/bash
 # =============================================================================
 # install.sh — Orquestador principal del entorno de desarrollo
-# Autor: [Tu nombre]
-# Repo:  https://github.com/[tu-usuario]/dotfiles
-#
-# Uso:
-#   ./install.sh          → menú interactivo
-#   ./install.sh --all    → instala todo
-#   ./install.sh --hw     → solo hardware tools
-#   ./install.sh --dev    → solo dev tools
-#   ./install.sh --emb    → solo embedded tools
+# Autor: Obviousfancy
+# Repo:  https://github.com/Obviousfancy/dotfiles
 # =============================================================================
 
 set -e
@@ -17,33 +10,29 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p "$SCRIPT_DIR/logs"
 
-# Dar permisos de ejecución a todos los scripts
 chmod +x "$SCRIPT_DIR/scripts/"*.sh
 
-# Colores
-RED='\033[0;31m'; GREEN='\033[0;32m'
-YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
+# Cargar preflight (que a su vez carga detect-os)
+source "$SCRIPT_DIR/scripts/preflight.sh"
 
-banner() {
-    echo -e "${BLUE}"
-    echo "╔══════════════════════════════════════════════════╗"
-    echo "║         Dotfiles — Entorno Embedded Linux        ║"
-    echo "║         by [Tu nombre] · UNIT Electronics       ║"
-    echo "╚══════════════════════════════════════════════════╝"
-    echo -e "${NC}"
-}
-
+# Colores ya disponibles via detect-os
 menu() {
-    banner
-    echo "Selecciona qué instalar:"
-    echo ""
-    echo -e "  ${GREEN}1)${NC} 🔧 Hardware Tools   (KiCad, OpenOCD, Arduino, Vivado)"
+    clear
+    echo -e "${BOLD}${BLUE}"
+    echo "  ╔══════════════════════════════════════════════════╗"
+    echo "  ║         Dotfiles — Entorno Embedded Linux        ║"
+    echo "  ║                 by Obviousfancy                  ║"
+    echo "  ╚══════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+    print_os_info
+
+    echo -e "  Selecciona qué instalar:\n"
+    echo -e "  ${GREEN}1)${NC} 🔧 Hardware Tools   (KiCad, Arduino, LaTeX, Vivado)"
     echo -e "  ${GREEN}2)${NC} 💻 Dev Tools         (VS Code, Docker, Git, JetBrains)"
-    echo -e "  ${GREEN}3)${NC} 🔬 Embedded Tools    (ARM GCC, STM32CubeIDE, debug)"
+    echo -e "  ${GREEN}3)${NC} 🔬 Embedded Tools    (ARM GCC, STM32CubeIDE, OpenOCD)"
     echo -e "  ${GREEN}a)${NC} 🚀 Todo              (instalación completa)"
-    echo -e "  ${RED}q)${NC} Salir"
-    echo ""
-    read -rp "Selección: " choice
+    echo -e "  ${RED}q)${NC} Salir\n"
+    read -rp "  Selección: " choice
 
     case $choice in
         1) bash "$SCRIPT_DIR/scripts/hardware-tools.sh" ;;
@@ -54,18 +43,23 @@ menu() {
             bash "$SCRIPT_DIR/scripts/dev-tools.sh" --all
             bash "$SCRIPT_DIR/scripts/embedded-tools.sh" --all
             ;;
-        q) echo "Saliendo."; exit 0 ;;
-        *) echo -e "${RED}Opción no válida${NC}"; menu ;;
+        q) echo "  Saliendo."; exit 0 ;;
+        *) error "Opción no válida"; sleep 1; menu ;;
     esac
 }
 
-# Flags por línea de comandos
 case "${1:-}" in
-    --all) bash "$SCRIPT_DIR/scripts/hardware-tools.sh" --all
-           bash "$SCRIPT_DIR/scripts/dev-tools.sh" --all
-           bash "$SCRIPT_DIR/scripts/embedded-tools.sh" --all ;;
+    --all)
+        preflight_check
+        bash "$SCRIPT_DIR/scripts/hardware-tools.sh" --all
+        bash "$SCRIPT_DIR/scripts/dev-tools.sh" --all
+        bash "$SCRIPT_DIR/scripts/embedded-tools.sh" --all
+        ;;
     --hw)  bash "$SCRIPT_DIR/scripts/hardware-tools.sh" ;;
     --dev) bash "$SCRIPT_DIR/scripts/dev-tools.sh" ;;
     --emb) bash "$SCRIPT_DIR/scripts/embedded-tools.sh" ;;
-    *)     menu ;;
+    *)
+        preflight_check  # Solo aparece en el flujo interactivo normal
+        menu
+        ;;
 esac

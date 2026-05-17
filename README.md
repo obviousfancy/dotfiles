@@ -10,8 +10,13 @@
 ![Badge](https://img.shields.io/badge/Maintainer-obviousfancy-green)
 
 </div>
+
+# **ES**
 Configuración reproducible de entorno para desarrollo de sistemas embebidos en Linux. Automatiza la instalación y configuración de herramientas de hardware, desarrollo y debug.
 
+# **EN**
+Setting up of environment for embedded systems develops on Linux.
+Automate the installation and setting up of hardware tools , develop and debug apps.
 ---
 
 ## 🗂️ Estructura del repositorio
@@ -38,7 +43,7 @@ dotfiles/
 ## 🚀 Instalación rápida
 
 ```bash
-git clone https://github.com/[tu-usuario]/dotfiles.git
+git clone https://github.com/obviousfancy/dotfiles.git
 cd dotfiles
 chmod +x install.sh
 ./install.sh
