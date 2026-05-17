@@ -159,21 +159,23 @@ install_latex() {
         
             # Verify the mirror repositories for the latest TeX Live distribution
             # https://www.tug.org/texlive/quickinstall.html
+            
+            # ✅ Envolver en subshell — el cd queda aislado
+            (
+                cd /tmp
+                wget https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+                zcat < install-tl-unx.tar.gz | tar xf -
+                cd install-tl-2*
+                sudo perl ./install-tl --no-interaction
+            )
 
-            cd /tmp
-            wget https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+            # Esto va FUERA de la subshell — solo si no existe ya
+            if ! grep -q "texlive" "$HOME/.bashrc"; then
+                echo 'export PATH=/usr/local/texlive/2026/bin/x86_64-linux:$PATH' >> ~/.bashrc
+            fi
 
-            zcat < install-tl-unx.tar.gz | tar xf - # note final - on that command line
-
-            cd install-tl-2*
-
-            sudo perl ./install-tl --no-interaction
-
-            echo 'export PATH=/usr/local/texlive/2026/bin/x86_64-linux:$PATH' >> ~/.bashrc
-
-            source ~/.bashrc
-
-            pdflatex --version
+           # En lugar de pdflatex --version, agregar esto:
+            warn "Abre una terminal nueva y ejecuta 'pdflatex --version' para verificar la instalación"
             #If all works fine, you can view this output 
             #pdfTeX <your-version> (TeX Live <your current year>)
             # tu código aquí

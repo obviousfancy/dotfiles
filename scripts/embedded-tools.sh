@@ -50,21 +50,13 @@ install_stm32cubeide() {
     section "STM32CubeIDE"
     log "Buscando instalador de STM32CubeIDE..."
 
-    # INSTALLER=$(find "${HOME}/Downloads" -name "st-stm32cubeide_*.sh" 2>/dev/null | head -1)
-    # INSTALLERMX=$(find "${HOME}/Downloads" -name "stm32cubemx*.zip" 2>/dev/null | head -1)
-
-
-    INSTALLER=$(wait_for_file ~/Downloads "st-stm32cubeide_*.sh" "STM32CubeIDE")
-    # ✅ CubeMX es opcional — primero preguntar, luego esperar si quiere
-    read -rp "  ¿También instalar STM32CubeMX? [s/N]: " confirm
-    if [[ "$confirm" =~ ^[sS]$ ]]; then
-        INSTALLERMX=$(wait_for_file ~/Downloads "stm32cubemx*.sh" "STM32CubeMX")
-    fi
-
-
-    log "Instalador CubeIDE encontrado: $(basename "$INSTALLER")"
-    chmod +x "$INSTALLER"
-    sudo "$INSTALLER"
+    # CubeIDE — zip que contiene el .sh
+    INSTALLER=$(wait_for_file ~/Downloads "en.st-stm32cubeide_*.zip" "STM32CubeIDE")
+    EXTRACTED=$(extract "$INSTALLER" "stm32cubeide")
+    SH_INSTALLER=$(find "$EXTRACTED" -name "st-stm32cubeide_*.sh" | head -1)
+    chmod +x "$SH_INSTALLER"
+    sudo "$SH_INSTALLER"
+    rm -rf "$EXTRACTED"
 
     if [ -d "/opt/stm32cubeide" ]; then
         success "STM32CubeIDE instalado en /opt/stm32cubeide"
@@ -73,17 +65,16 @@ install_stm32cubeide() {
         return 1
     fi
 
-    # Instalar STM32CubeMX si también se descargó
-    if [ -n "$INSTALLERMX" ]; then
-        log "Instalador CubeMX encontrado: $(basename "$INSTALLERMX")"
-        TMPDIR=$(mktemp -d)
-        unzip -q "$INSTALLERMX" -d "$TMPDIR"
-        chmod +x "$TMPDIR/SetupSTM32CubeMX"*
-        sudo "$TMPDIR/SetupSTM32CubeMX"*
-        rm -rf "$TMPDIR"
+    # CubeMX — opcional
+    read -rp "  ¿También instalar STM32CubeMX? [s/N]: " confirm
+    if [[ "$confirm" =~ ^[sS]$ ]]; then
+        INSTALLERMX=$(wait_for_file ~/Downloads "en.stm32cubemx_*.zip" "STM32CubeMX")
+        EXTRACTED_MX=$(extract "$INSTALLERMX" "stm32cubemx")
+        MX_INSTALLER=$(find "$EXTRACTED_MX" -name "SetupSTM32CubeMX*" -type f | head -1)
+        chmod +x "$MX_INSTALLER"
+        sudo "$MX_INSTALLER"
+        rm -rf "$EXTRACTED_MX"
         success "STM32CubeMX instalado"
-    else
-        warn "STM32CubeMX no encontrado en ~/Downloads — solo se instaló CubeIDE"
     fi
 
     # Reglas udev para ST-Link sin sudo
@@ -92,7 +83,6 @@ install_stm32cubeide() {
         sudo cp "$UDEV_RULES" /etc/udev/rules.d/
         sudo udevadm control --reload-rules
         sudo usermod -aG plugdev "$USER"
-      
     fi
 
     success "STM32CubeIDE instalado correctamente"

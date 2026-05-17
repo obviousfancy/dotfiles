@@ -120,6 +120,15 @@ post_install() {
     warn "Cierra sesión UNA VEZ para activar todos los permisos USB y de grupo."
     warn "Después de eso todo funcionará sin sudo."
     echo ""
+    section "Verificaciones pendientes"
+    log "Ejecuta estos comandos en una terminal nueva para verificar:"
+    echo ""
+    echo -e "  ${CYAN}pdflatex --version${NC}     — verificar LaTeX"
+    echo -e "  ${CYAN}arm-none-eabi-gcc --version${NC} — verificar ARM GCC"
+    echo -e "  ${CYAN}docker run hello-world${NC} — verificar Docker"
+    echo -e "  ${CYAN}arduino-ide${NC}            — verificar Arduino IDE"
+    echo -e "  ${CYAN}kicad${NC}                  — verificar KiCad"
+    echo ""
 }
 # =============================================================================
 # PREFLIGHT CHECK — responde tu pregunta 2
