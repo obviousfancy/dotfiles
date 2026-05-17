@@ -286,7 +286,7 @@ Type=Application
 Name=MATLAB
 Comment=Scientific computing environment
 Exec=/usr/local/bin/matlab -desktop
-Icon=/usr/local/MATLAB/R2026a/toolbox/shared/dastudio/resources/matlab_icon.png
+Icon=/usr/local/MATLAB/R2026a/toolbox/shared/dastudio/resources/MatlabIcon.png
 Terminal=false
 Categories=Development;Science;Mathematics;
 EOF
