@@ -4,7 +4,7 @@
 # Herramientas: ARM GCC, STM32CubeIDE, OpenOCD, bat, colores de terminal
 # =============================================================================
 
-source "$(dirname "$0")/detect-os.sh"
+source "$(dirname "$0")/preflight.sh"   # carga detect-os automáticamente
 
 LOG_FILE="$(dirname "$0")/../logs/embedded-tools.log"
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -50,21 +50,17 @@ install_stm32cubeide() {
     section "STM32CubeIDE"
     log "Buscando instalador de STM32CubeIDE..."
 
-    INSTALLER=$(find "${HOME}/Downloads" -name "st-stm32cubeide_*.sh" 2>/dev/null | head -1)
-    INSTALLERMX=$(find "${HOME}/Downloads" -name "stm32cubemx*.zip" 2>/dev/null | head -1)
+    # INSTALLER=$(find "${HOME}/Downloads" -name "st-stm32cubeide_*.sh" 2>/dev/null | head -1)
+    # INSTALLERMX=$(find "${HOME}/Downloads" -name "stm32cubemx*.zip" 2>/dev/null | head -1)
 
-    if [ -z "$INSTALLER" ]; then
-        warn "Instalador no encontrado en ~/Downloads"
-        echo ""
-        echo -e "  ${CYAN}1.${NC} Ve a: https://www.st.com/en/development-tools/stm32cubeide.html"
-        echo -e "  ${CYAN}2.${NC} Crea cuenta gratuita en st.com"
-        echo -e "  ${CYAN}3.${NC} Descarga el instalador .sh para Linux"
-        echo -e "  ${CYAN}4.${NC} Guárdalo en ~/Downloads"
-        echo -e "  ${CYAN}5.${NC} Vuelve a ejecutar este script"
-        echo ""
-        xdg-open "https://www.st.com/en/development-tools/stm32cubeide.html" 2>/dev/null
-        return 1
+
+    INSTALLER=$(wait_for_file ~/Downloads "st-stm32cubeide_*.sh" "STM32CubeIDE")
+    # ✅ CubeMX es opcional — primero preguntar, luego esperar si quiere
+    read -rp "  ¿También instalar STM32CubeMX? [s/N]: " confirm
+    if [[ "$confirm" =~ ^[sS]$ ]]; then
+        INSTALLERMX=$(wait_for_file ~/Downloads "stm32cubemx*.sh" "STM32CubeMX")
     fi
+
 
     log "Instalador CubeIDE encontrado: $(basename "$INSTALLER")"
     chmod +x "$INSTALLER"
@@ -96,7 +92,7 @@ install_stm32cubeide() {
         sudo cp "$UDEV_RULES" /etc/udev/rules.d/
         sudo udevadm control --reload-rules
         sudo usermod -aG plugdev "$USER"
-        warn "Reinicia sesión para acceso a ST-Link sin sudo"
+      
     fi
 
     success "STM32CubeIDE instalado correctamente"
@@ -121,7 +117,7 @@ install_openocd() {
     fi
 
     success "OpenOCD instalado"
-    warn "Reinicia sesión para que los permisos USB surtan efecto"
+   
 }
 
 # -----------------------------------------------------------------------------

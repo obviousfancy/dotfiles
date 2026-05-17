@@ -54,6 +54,8 @@ case "${1:-}" in
         bash "$SCRIPT_DIR/scripts/hardware-tools.sh" --all
         bash "$SCRIPT_DIR/scripts/dev-tools.sh" --all
         bash "$SCRIPT_DIR/scripts/embedded-tools.sh" --all
+        
+        post_install    # ← agregar aquí
         ;;
     --hw)  bash "$SCRIPT_DIR/scripts/hardware-tools.sh" ;;
     --dev) bash "$SCRIPT_DIR/scripts/dev-tools.sh" ;;
@@ -61,5 +63,7 @@ case "${1:-}" in
     *)
         preflight_check  # Solo aparece en el flujo interactivo normal
         menu
+        post_install    # ← y aquí
+
         ;;
 esac

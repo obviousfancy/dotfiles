@@ -5,7 +5,8 @@
 # =============================================================================
 
 # Importar detección de OS y funciones de log
-source "$(dirname "$0")/detect-os.sh"
+source "$(dirname "$0")/preflight.sh"   # carga detect-os automáticamente
+
 
 # Directorio de logs (se crea automáticamente)
 LOG_FILE="$(dirname "$0")/../logs/hardware-tools.log"
@@ -60,30 +61,25 @@ install_kicad() {
 # -----------------------------------------------------------------------------
 install_arduino() {
 
-    ZIP_PATH="${1}"
+
     INSTALL_DIR="/opt/arduino-ide"
 
     section "Arduino IDE 2"
     log "Iniciando instalación de Arduino IDE..."
 
-    if [ -z "$ZIP_PATH" ]; then
-    echo "❌ Error: Debes proporcionar la ruta al archivo zip."
-    echo "   Uso: ./install_arduino.sh <ruta-al-zip>"
-    exit 1
-    fi
+    INSTALLER=$(wait_for_file ~/Downloads "arduino-ide_*.zip" "Arduino IDE")
     
-    if [ ! -f "$ZIP_PATH" ]; then
-        echo "❌ Error: No se encontró el archivo: $ZIP_PATH"
-        exit 1
-    fi
-    
+    # extract() retorna la ruta del tmpdir via echo
+    EXTRACTED=$(extract "$INSTALLER" "arduino")
+    # EXTRACTED = /tmp/arduino-XXXXXX/
+
     echo "🚀 Iniciando instalación de Arduino IDE..."
     
-    # --- 1. Extraer en /opt ---
-    echo "📦 Extrayendo archivos en /opt..."
-    sudo unzip -q "$ZIP_PATH" -d /opt/
-    sudo mv /opt/arduino-ide_* "$INSTALL_DIR"
+    # Mover contenido a /opt/
+    sudo mv "$EXTRACTED"/arduino-ide_* /opt/arduino-ide
     
+    rm -rf "$EXTRACTED"
+
     # --- 2. Asignar propiedad al usuario ---
     echo "🔑 Asignando permisos..."
     sudo chown -R "$USER":"$USER" "$INSTALL_DIR"
@@ -146,8 +142,6 @@ EOF
     # ─── PEGA TU CÓDIGO AQUÍ ────────────────────────────────────────────────
 
     # ────────────────────────────────────────────────────────────────────────
-
-    set -e
  
 
     success "Arduino IDE instalado correctamente"
@@ -208,13 +202,9 @@ install_vivado() {
     echo ""
 
     # Buscar si ya existe el instalador descargado
-    INSTALLER=$(find ~/Downloads -name "Xilinx_Vivado_*.tar.gz" 2>/dev/null | head -1)
+    # INSTALLER=$(find ~/Downloads -name "Xilinx_Vivado_*.tar.gz" 2>/dev/null | head -1)
 
-    if [ -z "$INSTALLER" ]; then
-        warn "Instalador no encontrado. Abriendo navegador..."
-        xdg-open "https://www.xilinx.com/support/download.html" 2>/dev/null
-        return 1
-    fi
+    INSTALLER=$(wait_for_file ~/Downloads "Xilinx_Vivado_*.sh" "Vivado")
 
     log "Instalador encontrado: $INSTALLER"
 

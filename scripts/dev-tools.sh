@@ -4,7 +4,9 @@
 # Herramientas: VS Code, Git, Docker, JetBrains Toolbox, Node.js, Vite/React, MATLAB
 # =============================================================================
 
-source "$(dirname "$0")/detect-os.sh"
+
+source "$(dirname "$0")/preflight.sh"   # carga detect-os automáticamente
+
 
 LOG_FILE="$(dirname "$0")/../logs/dev-tools.log"
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -18,20 +20,9 @@ install_vscode() {
     section "Visual Studio Code"
     log "Buscando instalador de VS Code..."
 
-    INSTALLER=$(find ~/Downloads -name "code_*.deb" 2>/dev/null | head -1)
+    # INSTALLER=$(find ~/Downloads -name "code_*.deb" 2>/dev/null | head -1)
 
-    if [ -z "$INSTALLER" ]; then
-        warn "Instalador .deb no encontrado en ~/Downloads"
-        echo ""
-        echo -e "  ${CYAN}1.${NC} Descarga desde: https://code.visualstudio.com/download"
-        echo -e "  ${CYAN}2.${NC} Selecciona el paquete .deb (Linux)"
-        echo -e "  ${CYAN}3.${NC} Guárdalo en ~/Downloads"
-        echo -e "  ${CYAN}4.${NC} Vuelve a ejecutar este script"
-        echo ""
-        warn "Abriendo navegador..."
-        xdg-open "https://code.visualstudio.com/download" 2>/dev/null
-        return 1
-    fi
+    INSTALLER=$(wait_for_file ~/Downloads "code_*.deb" "Visual Studio Code")
 
     log "Instalador encontrado: $(basename "$INSTALLER")"
 
@@ -129,7 +120,7 @@ install_docker() {
     sudo usermod -aG docker "$USER"
 
     success "Docker instalado"
-    warn "Reinicia sesión para usar Docker sin sudo"
+  
 }
 
 # -----------------------------------------------------------------------------
@@ -137,23 +128,18 @@ install_jetbrains() {
     section "JetBrains Toolbox"
     log "Buscando instalador de JetBrains Toolbox..."
 
-    INSTALLER=$(find ~/Downloads -name "jetbrains-toolbox-*.tar.gz" 2>/dev/null | head -1)
+    # INSTALLER=$(find ~/Downloads -name "jetbrains-toolbox-*.tar.gz" 2>/dev/null | head -1)
 
-    if [ -z "$INSTALLER" ]; then
-        warn "Instalador no encontrado en ~/Downloads"
-        echo ""
-        echo -e "  ${CYAN}1.${NC} Descarga desde: https://www.jetbrains.com/toolbox-app/"
-        echo -e "  ${CYAN}2.${NC} Guarda el .tar.gz en ~/Downloads"
-        echo -e "  ${CYAN}3.${NC} Vuelve a ejecutar este script"
-        echo ""
-        xdg-open "https://www.jetbrains.com/toolbox-app/" 2>/dev/null
-        return 1
-    fi
+    INSTALLER=$(wait_for_file ~/Downloads "jetbrains-toolbox-*.tar.gz" "JetBrains Toolbox")
 
     log "Instalador encontrado: $(basename "$INSTALLER")"
+    # extract() retorna la ruta del tmpdir via echo
+    EXTRACTED=$(extract "$INSTALLER" "jetbrains-toolbox")
+    sudo mv "$EXTRACTED"/jetbrains-toolbox-* /opt/jetbrains-toolbox
 
-    sudo tar -xzf "$INSTALLER" -C /opt/
-    sudo mv /opt/jetbrains-toolbox-* /opt/jetbrains-toolbox
+
+    rm -rf "$EXTRACTED"
+   
     sudo chown -R "$USER":"$USER" /opt/jetbrains-toolbox
 
     # Symlink para acceso desde terminal
@@ -183,14 +169,13 @@ install_nodejs() {
     \. "$NVM_DIR/nvm.sh"
 
     log "Instalando Node.js LTS..."
-    nvm install --lts
-    nvm use --lts
+    nvm install 24
 
     node -v
     npm -v
 
     success "Node.js instalado correctamente"
-    warn "Abre una terminal nueva para que nvm funcione automáticamente"
+    
 }
 
 # -----------------------------------------------------------------------------
@@ -223,27 +208,23 @@ install_matlab() {
     log "Buscando instalador de MATLAB..."
 
     # MATLAB descarga un .zip o instalador directo
-    INSTALLER=$(find ~/Downloads -name "matlab_*.zip" -o -name "Matlab_*" 2>/dev/null | head -1)
+    # INSTALLER=$(find ~/Downloads -name "matlab_*.zip" -o -name "Matlab_*" 2>/dev/null | head -1)
 
-    if [ -z "$INSTALLER" ]; then
-        warn "Instalador no encontrado en ~/Downloads"
-        echo ""
-        echo -e "  ${CYAN}1.${NC} Crea cuenta en:  https://www.mathworks.com/login"
-        echo -e "  ${CYAN}2.${NC} Descarga desde:  https://www.mathworks.com/downloads"
-        echo -e "  ${CYAN}3.${NC} Guarda el instalador en ~/Downloads"
-        echo -e "  ${CYAN}4.${NC} Vuelve a ejecutar este script"
-        echo ""
-        xdg-open "https://www.mathworks.com/downloads" 2>/dev/null
-        return 1
-    fi
+    INSTALLER=$(wait_for_file ~/Downloads "matlab_*.zip" "MATLAB")
 
     log "Instalador encontrado: $(basename "$INSTALLER")"
 
-    # Descomprimir y ejecutar instalador
-    TMPDIR=$(mktemp -d)
-    unzip -q "$INSTALLER" -d "$TMPDIR"
-    chmod +x "$TMPDIR/install"
-    sudo "$TMPDIR/install"
+    EXTRACTED=$(extract "$INSTALLER" "matlab")
+    # EXTRACTED = /tmp/matlab-XXXXXX/
+
+    # El instalador está adentro del zip
+    chmod +x "$EXTRACTED/install"
+
+    # Subshell para el cd — no afecta nada afuera
+    (
+        cd "$EXTRACTED"
+        sudo ./install
+    )
 
     # Crear entrada en el menú de aplicaciones
     # Se usa cat con heredoc — todo entre EOF es texto literal que se escribe al archivo
@@ -254,19 +235,22 @@ Type=Application
 Name=MATLAB
 Comment=Scientific computing environment
 Exec=/usr/local/bin/matlab -desktop
-Icon=/usr/local/MATLAB/R2025b/toolbox/shared/dastudio/resources/Matlab_Logo_64.png
+Icon=/usr/local/MATLAB/R2026a/toolbox/shared/dastudio/resources/matlab_icon.png
 Terminal=false
 Categories=Development;Science;Mathematics;
 EOF
 
+    # Limpiar archivos temporales
+    rm -rf "$EXTRACTED"
+
     # Acceso a puertos serie (para hardware con MATLAB)
     sudo usermod -aG dialout "$USER"
 
-    # Limpiar archivos temporales
-    rm -rf "$TMPDIR"
+    update-desktop-database ~/.local/share/applications
+
 
     success "MATLAB instalado"
-    warn "Reinicia sesión para que los permisos de grupo surtan efecto"
+   
 }
 
 # =============================================================================

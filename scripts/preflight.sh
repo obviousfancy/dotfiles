@@ -10,7 +10,7 @@
 #   wait_for_file     → espera activamente hasta que el usuario descargue un archivo
 # =============================================================================
 
-source "$(dirname "$0")/scripts/detect-os.sh"
+source "$(dirname "$0")/detect-os.sh"
 
 # =============================================================================
 # ESPERA ACTIVA — responde tu pregunta 3
@@ -58,6 +58,69 @@ wait_for_file() {
     done
 }
 
+extract() {
+    local FILE="$1"
+    local APP_NAME="$2"
+
+    # Crear directorio temporal único para esta app
+    # mktemp -d crea /tmp/algo-XXXXXX donde X son caracteres aleatorios
+    local TMPDIR
+    TMPDIR=$(mktemp -d -t "${APP_NAME}-XXXXXX")
+
+    log "Extrayendo $(basename "$FILE") en $TMPDIR..."
+
+    case "$FILE" in
+        *.zip)
+            unzip -q "$FILE" -d "$TMPDIR"
+            ;;
+        *.tar.gz)
+            tar -xzf "$FILE" -C "$TMPDIR"
+            ;;
+        *.tar.xz)
+            tar -xJf "$FILE" -C "$TMPDIR"
+            ;;
+        *.tar.bz2)
+            tar -xjf "$FILE" -C "$TMPDIR"
+            ;;
+        *.sh | *.run)
+            # No se extrae — solo se prepara para ejecutar
+            chmod +x "$FILE"
+            # Retornar la ruta del archivo original, no del tmpdir
+            echo "$FILE"
+            return 0
+            ;;
+        *.deb)
+            # No se extrae — dpkg lo instala directo
+            echo "$FILE"
+            return 0
+            ;;
+        *)
+            error "Formato no reconocido: $(basename "$FILE")"
+            rm -rf "$TMPDIR"
+            return 1
+            ;;
+    esac
+
+    # Retornar la ruta del directorio extraído
+    # El caller usa esto para saber dónde trabajar
+    echo "$TMPDIR"
+}
+
+post_install() {
+    section "Post-instalación"
+    log "Consolidando permisos de grupo..."
+
+    sudo usermod -aG docker    "$USER" 2>/dev/null
+    sudo usermod -aG dialout   "$USER" 2>/dev/null
+    sudo usermod -aG plugdev   "$USER" 2>/dev/null
+    sudo usermod -aG wireshark "$USER" 2>/dev/null
+
+    echo ""
+    success "Instalación completada."
+    warn "Cierra sesión UNA VEZ para activar todos los permisos USB y de grupo."
+    warn "Después de eso todo funcionará sin sudo."
+    echo ""
+}
 # =============================================================================
 # PREFLIGHT CHECK — responde tu pregunta 2
 # =============================================================================
@@ -69,7 +132,7 @@ preflight_check() {
     clear
     echo -e "${BOLD}${BLUE}"
     echo "  ╔══════════════════════════════════════════════════╗"
-    echo "  ║     Dotfiles — Entorno Embedded Linux            ║"
+    echo "  ║     Dotfiles —  Linux Embedded Environment       ║"
     echo "  ║     by Obviousfancy · UNIT Electronics           ║"
     echo "  ╚══════════════════════════════════════════════════╝"
     echo -e "${NC}"
