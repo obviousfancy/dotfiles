@@ -1,0 +1,59 @@
+[0;31m[✗][0m No ejecutes este script como root (sudo).
+[0;31m[✗][0m El script pide sudo solo cuando lo necesita.
+Verifying archive integrity... All good.
+Uncompressing STM32CubeIDE installer
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Solving dependencies...
+Recommended packages:
+  libpython2.7 libwebkit2gtk-4.0-37
+The following NEW packages will be installed:
+  segger-jlink-udev-rules st-stlink-server st-stlink-udev-rules
+  st-stm32cubeide-2.1.1
+0 upgraded, 4 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/844 MB of archives.
+After this operation, 0 B of additional disk space will be used.
+Get:1 /home/obviousfancy/Documents/obviousfancy/dotfiles/makeself_dir_S0HPHU/segger-jlink-udev-rules-9.24-linux-all.deb segger-jlink-udev-rules all 9.24 [18.2 kB]
+Get:2 /home/obviousfancy/Documents/obviousfancy/dotfiles/makeself_dir_S0HPHU/st-stlink-server-2.1.1-1-linux-amd64.deb st-stlink-server amd64 2.1.1-1 [51.8 kB]
+Get:3 /home/obviousfancy/Documents/obviousfancy/dotfiles/makeself_dir_S0HPHU/st-stlink-udev-rules-1.0.3-3-linux-all.deb st-stlink-udev-rules all 1.0.3-3 [5,284 B]
+Get:4 /home/obviousfancy/Documents/obviousfancy/dotfiles/makeself_dir_S0HPHU/st-stm32cubeide-2.1.1-28236-20260312-0043_amd64.deb st-stm32cubeide-2.1.1 amd64 2.1.1-28236-20260312-0043-1 [844 MB]
+Selecting previously unselected package segger-jlink-udev-rules.
+(Reading database… (Reading database… 5%(Reading database… 10%(Reading database… 15%(Reading database… 20%(Reading database… 25%(Reading database… 30%(Reading database… 35%(Reading database… 40%(Reading database… 45%(Reading database… 50%(Reading database… 55%(Reading database… 60%(Reading database… 65%(Reading database… 70%(Reading database… 75%(Reading database… 80%(Reading database… 85%(Reading database… 90%(Reading database… 95%(Reading database… 100%(Reading database… 224012 files and directories currently installed.)
+Preparing to unpack …/segger-jlink-udev-rules-9.24-linux-all.deb…
+Unpacking segger-jlink-udev-rules (9.24)…
+Selecting previously unselected package st-stlink-server.
+Preparing to unpack …/st-stlink-server-2.1.1-1-linux-amd64.deb…
+Stopping stlink-server (if any)...
+Unpacking st-stlink-server (2.1.1-1)…
+Selecting previously unselected package st-stlink-udev-rules.
+Preparing to unpack …/st-stlink-udev-rules-1.0.3-3-linux-all.deb…
+Unpacking st-stlink-udev-rules (1.0.3-3)…
+Selecting previously unselected package st-stm32cubeide-2.1.1.
+Preparing to unpack …/st-stm32cubeide-2.1.1-28236-20260312-0043_amd64.deb…
+Unpacking st-stm32cubeide-2.1.1 (2.1.1-28236-20260312-0043-1)…
+Setting up segger-jlink-udev-rules (9.24)…
+Setting up st-stlink-udev-rules (1.0.3-3)…
+Setting up st-stlink-server (2.1.1-1)…
+Setting up st-stm32cubeide-2.1.1 (2.1.1-28236-20260312-0043-1)…
+Processing triggers for gnome-menus (3.38.1-1ubuntu1)…
+Processing triggers for desktop-file-utils (0.28-1build1)…
+STM32CubeIDE installed successfully
+Verifying archive integrity... All good.
+Uncompressing STM32CubeIDE installer
+Nothing to install.
+Check exe path on linux
+FullExe path1 is: /tmp/stm32cubemx-64afp4/SetupSTM32CubeMX-6.17.0
+Exe path is: /tmp/stm32cubemx-64afp4
+Search java from relative path ----
+Checking java in /tmp/stm32cubemx-64afp4/./jre/bin/java
+[ Writing the uninstaller data ... ]
+Verifying archive integrity... All good.
+Uncompressing STM32CubeIDE installer
+Nothing to install.
+Check exe path on linux
+FullExe path1 is: /tmp/stm32cubemx-gCpX37/SetupSTM32CubeMX-6.17.0
+Exe path is: /tmp/stm32cubemx-gCpX37
+Search java from relative path ----
+Checking java in /tmp/stm32cubemx-gCpX37/./jre/bin/java
+[ Writing the uninstaller data ... ]

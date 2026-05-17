@@ -5,12 +5,21 @@
 # =============================================================================
 
 
-source "$(dirname "$0")/preflight.sh"   # carga detect-os automáticamente
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SELF_DIR/preflight.sh"
 
 
-LOG_FILE="$(dirname "$0")/../logs/dev-tools.log"
-mkdir -p "$(dirname "$LOG_FILE")"
-exec > >(tee -a "$LOG_FILE") 2>&1
+LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/logs"
+mkdir -p "$LOG_DIR"
+chmod 755 "$LOG_DIR"
+# Si el log existe y es de root, tomar ownership automáticamente
+if [ -f "$LOG_DIR/dev-tools.log" ] && [ ! -w "$LOG_DIR/dev-tools.log" ]; then
+    sudo chown "$USER":"$USER" "$LOG_DIR/dev-tools.log"
+fi
+LOG_FILE="$LOG_DIR/dev-tools.log"
+touch "$LOG_FILE"
+chmod 644 "$LOG_FILE"
+exec > >(tee -a "$LOG_FILE")
 
 # =============================================================================
 # FUNCIONES DE INSTALACIÓN
@@ -18,30 +27,44 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 
 install_vscode() {
     section "Visual Studio Code"
-    log "Buscando instalador de VS Code..."
-
-    # INSTALLER=$(find ~/Downloads -name "code_*.deb" 2>/dev/null | head -1)
-
-    INSTALLER=$(wait_for_file ~/Downloads "code_*.deb" "Visual Studio Code")
-
-    log "Instalador encontrado: $(basename "$INSTALLER")"
-
+    log "Instalando VS Code via repositorio oficial Microsoft..."
+ 
     case $PKG_MANAGER in
         apt)
-            # dpkg instala el .deb, apt -f install resuelve dependencias faltantes
-            sudo dpkg -i "$INSTALLER"
-            sudo apt install -f -y
+            sudo apt install -y wget gpg
+            wget -qO- https://packages.microsoft.com/keys/microsoft.asc \
+                | sudo gpg --dearmor -o /usr/share/keyrings/microsoft.gpg
+            sudo tee /etc/apt/sources.list.d/vscode.sources > /dev/null << EOF
+Types: deb
+URIs: https://packages.microsoft.com/repos/code
+Suites: stable
+Components: main
+Architectures: amd64,arm64,armhf
+Signed-By: /usr/share/keyrings/microsoft.gpg
+EOF
+            sudo apt update
+            sudo apt install -y code
             ;;
         dnf)
-            sudo dnf install -y "$INSTALLER"
+            sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+            sudo tee /etc/yum.repos.d/vscode.repo << EOF
+[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF
+            sudo dnf install -y code
             ;;
         pacman)
             warn "En Arch usa: yay -S visual-studio-code-bin"
             ;;
     esac
-
+ 
     success "VS Code instalado correctamente"
 }
+
 
 # -----------------------------------------------------------------------------
 install_git() {
@@ -76,7 +99,7 @@ install_git() {
     else
         warn "Ya existe clave SSH en $SSH_KEY — no se generó una nueva"
     fi
-
+ UDEV_RULES=$(find /opt/stm32cubeide -name "*.rules" 2>/dev/null | head -1)
     echo ""
     warn "Copia esta clave pública en GitHub → Settings → SSH Keys:"
     echo "  ────────────────────────────────────────"
@@ -124,30 +147,33 @@ install_docker() {
 }
 
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 install_jetbrains() {
     section "JetBrains Toolbox"
     log "Buscando instalador de JetBrains Toolbox..."
-
+ 
     # INSTALLER=$(find ~/Downloads -name "jetbrains-toolbox-*.tar.gz" 2>/dev/null | head -1)
-
+ 
     INSTALLER=$(wait_for_file ~/Downloads "jetbrains-toolbox-*.tar.gz" "JetBrains Toolbox")
-
+ 
     log "Instalador encontrado: $(basename "$INSTALLER")"
-    # extract() retorna la ruta del tmpdir via echo
     EXTRACTED=$(extract "$INSTALLER" "jetbrains-toolbox")
+ 
+    # El tar.gz contiene una carpeta jetbrains-toolbox-X.X.X/
+    # la movemos a /opt/ y la renombramos
     sudo mv "$EXTRACTED"/jetbrains-toolbox-* /opt/jetbrains-toolbox
-
-
     rm -rf "$EXTRACTED"
-   
+ 
     sudo chown -R "$USER":"$USER" /opt/jetbrains-toolbox
-
-    # Symlink para acceso desde terminal
-    sudo ln -sf /opt/jetbrains-toolbox/jetbrains-toolbox /usr/local/bin/jetbrains-toolbox
-
+ 
+    # El ejecutable vive en bin/ dentro de la carpeta
+    sudo ln -sf /opt/jetbrains-toolbox/bin/jetbrains-toolbox /usr/local/bin/jetbrains-toolbox
+ 
     success "JetBrains Toolbox instalado"
     warn "Ejecuta 'jetbrains-toolbox' para instalar WebStorm, CLion, etc."
+    nohup /opt/jetbrains-toolbox/bin/jetbrains-toolbox &>/dev/null &
 }
+
 
 # -----------------------------------------------------------------------------
 install_nodejs() {
@@ -194,7 +220,32 @@ install_vite_react() {
         fi
     fi
 
-    # Vite se usa via npx, no necesita instalación global
+    # Vite se usa# -----------------------------------------------------------------------------
+install_jetbrains() {
+    section "JetBrains Toolbox"
+    log "Buscando instalador de JetBrains Toolbox..."
+ 
+    # INSTALLER=$(find ~/Downloads -name "jetbrains-toolbox-*.tar.gz" 2>/dev/null | head -1)
+ 
+    INSTALLER=$(wait_for_file ~/Downloads "jetbrains-toolbox-*.tar.gz" "JetBrains Toolbox")
+ 
+    log "Instalador encontrado: $(basename "$INSTALLER")"
+    EXTRACTED=$(extract "$INSTALLER" "jetbrains-toolbox")
+ 
+    # El tar.gz contiene una carpeta jetbrains-toolbox-X.X.X/
+    # la movemos a /opt/ y la renombramos
+    sudo mv "$EXTRACTED"/jetbrains-toolbox-* /opt/jetbrains-toolbox
+    rm -rf "$EXTRACTED"
+ 
+    sudo chown -R "$USER":"$USER" /opt/jetbrains-toolbox
+ 
+    # El ejecutable vive en bin/ dentro de la carpeta
+    sudo ln -sf /opt/jetbrains-toolbox/bin/jetbrains-toolbox /usr/local/bin/jetbrains-toolbox
+ 
+    success "JetBrains Toolbox instalado"
+    warn "Ejecuta 'jetbrains-toolbox' para instalar WebStorm, CLion, etc."
+}
+ via npx, no necesita instalación global
     # Solo verificamos que npm funcione
     npm install -g vite
 

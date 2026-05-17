@@ -28,11 +28,11 @@ NC='\033[0m' # No Color — resetea el color
 
 # -- Funciones de log ---------------------------------------------------------
 # Úsalas en cualquier script después de hacer source de este archivo
-log()     { echo -e "${CYAN}[·]${NC} $1"; }
-success() { echo -e "${GREEN}[✓]${NC} $1"; }
-warn()    { echo -e "${YELLOW}[!]${NC} $1"; }
-error()   { echo -e "${RED}[✗]${NC} $1"; }
-section() { echo -e "\n${BOLD}${BLUE}══ $1 ══${NC}\n"; }
+log()     { echo -e "${CYAN}[·]${NC} $1" >&2; }
+success() { echo -e "${GREEN}[✓]${NC} $1" >&2; }
+warn()    { echo -e "${YELLOW}[!]${NC} $1" >&2; }
+error()   { echo -e "${RED}[✗]${NC} $1" >&2; }
+section() { echo -e "\n${BOLD}${BLUE}══ $1 ══${NC}\n" >&2; }
 
 # -- Detección de OS ----------------------------------------------------------
 detect_os() {

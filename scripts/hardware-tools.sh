@@ -5,16 +5,22 @@
 # =============================================================================
 
 # Importar detección de OS y funciones de log
-source "$(dirname "$0")/preflight.sh"   # carga detect-os automáticamente
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SELF_DIR/preflight.sh"
 
 
 # Directorio de logs (se crea automáticamente)
-LOG_FILE="$(dirname "$0")/../logs/hardware-tools.log"
-mkdir -p "$(dirname "$LOG_FILE")"
-
-# Redirigir output también al log, sin perder lo que se ve en pantalla
-# "tee -a" escribe en pantalla Y agrega al archivo
-exec > >(tee -a "$LOG_FILE") 2>&1
+LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/logs"
+mkdir -p "$LOG_DIR"
+chmod 755 "$LOG_DIR"
+# Si el log existe y es de root, tomar ownership automáticamente
+if [ -f "$LOG_DIR/hardware-tools.log" ] && [ ! -w "$LOG_DIR/hardware-tools.log" ]; then
+    sudo chown "$USER":"$USER" "$LOG_DIR/hardware-tools.log"
+fi
+LOG_FILE="$LOG_DIR/hardware-tools.log"
+touch "$LOG_FILE"
+chmod 644 "$LOG_FILE"
+exec > >(tee -a "$LOG_FILE")
 
 # =============================================================================
 # FUNCIONES DE INSTALACIÓN — aquí pegas tu código
@@ -59,27 +65,32 @@ install_kicad() {
 }
 
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 install_arduino() {
-
-
+ 
+ 
     INSTALL_DIR="/opt/arduino-ide"
-
+ 
     section "Arduino IDE 2"
     log "Iniciando instalación de Arduino IDE..."
-
+ 
     INSTALLER=$(wait_for_file ~/Downloads "arduino-ide_*.zip" "Arduino IDE")
     
     # extract() retorna la ruta del tmpdir via echo
     EXTRACTED=$(extract "$INSTALLER" "arduino")
     # EXTRACTED = /tmp/arduino-XXXXXX/
-
+ 
     echo "🚀 Iniciando instalación de Arduino IDE..."
     
+ 
+    # Cachear credenciales sudo para evitar interrupciones
+    sudo -v
+ 
     # Mover contenido a /opt/
-    sudo mv "$EXTRACTED"/arduino-ide_* /opt/arduino-ide
-    
+    sudo rm -rf /opt/arduino-ide && echo "rm ok" || echo "rm falló"
+    sudo mv "$EXTRACTED"/arduino-ide_* /opt/arduino-ide && echo "mv ok" || error "mv falló"
     rm -rf "$EXTRACTED"
-
+ 
     # --- 2. Asignar propiedad al usuario ---
     echo "🔑 Asignando permisos..."
     sudo chown -R "$USER":"$USER" "$INSTALL_DIR"
@@ -103,49 +114,54 @@ directories:
     data: $HOME/.arduino15
     downloads: $HOME/.arduino15/staging
     user: $HOME/Arduino    
-EOF 
+EOF
 
-        
+
     # --- 6. Wrapper para terminal ---
-
     echo "🔗 Creando comando 'arduino-ide' en terminal..."
-sudo tee /usr/local/bin/arduino-ide > /dev/null << 'WRAPPER'
+    sudo tee /usr/local/bin/arduino-ide > /dev/null << 'WRAPPER'
 #!/bin/bash
 exec /opt/arduino-ide/arduino-ide --no-sandbox "$@"
 WRAPPER
-sudo chmod +x /usr/local/bin/arduino-ide
-
-# --- 7. Acceso directo en el menú ---
-echo "🖥️  Creando acceso directo en el menú..."
-cat > ~/.local/share/applications/arduino-ide.desktop << EOF
-    [Desktop Entry]
-    Version=1.0
-    Type=Application
-    Name=Arduino IDE
-    Comment=Arduino IDE 2
-    Exec=$INSTALL_DIR/arduino-ide --no-sandbox
-    Icon=$INSTALL_DIR/resources/app/resources/icons/512x512.png
-    Terminal=false
-    Categories=Development;IDE;
-    StartupNotify=true
+    sudo chmod +x /usr/local/bin/arduino-ide
+ 
+    # --- 7. Acceso directo en el menú ---
+    echo "🖥️  Creando acceso directo en el menú..."
+    mkdir -p ~/.local/share/applications
+    cat > ~/.local/share/applications/arduino-ide.desktop << EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Arduino IDE
+Comment=Arduino IDE 2
+Exec=$INSTALL_DIR/arduino-ide --no-sandbox
+Icon=$INSTALL_DIR/resources/app/resources/icons/512x512.png
+Terminal=false
+Categories=Development;IDE;
+StartupNotify=true
 EOF
-
-    chmod +x ~/.local/share/applications/arduino-ide.desktop
+    chmod +x ~/.local/share/applications/arduino-ide.desktop || true
+ 
+    # Registrar .desktop sin cerrar sesión
     update-desktop-database ~/.local/share/applications
-    
+    gtk-update-icon-cache -f -t ~/.local/share/icons 2>/dev/null || true
+    if command -v gdbus &>/dev/null; then
+        gdbus call --session \
+            --dest org.gnome.Shell \
+            --object-path /org/gnome/Shell \
+            --method org.gnome.Shell.Eval \
+            "Main.overview.hide();" 2>/dev/null || true
+    fi
+ 
     echo ""
     echo "✅ Arduino IDE instalado correctamente en $INSTALL_DIR"
     echo "   Terminal: arduino-ide"
     echo ""
-    echo "⚠️  Cierra sesión y vuelve a entrar para que el grupo 'dialout' tome efecto."
-    
-    # ─── PEGA TU CÓDIGO AQUÍ ────────────────────────────────────────────────
-
-    # ────────────────────────────────────────────────────────────────────────
  
-
     success "Arduino IDE instalado correctamente"
 }
+
+
 
 # -----------------------------------------------------------------------------
 install_latex() {

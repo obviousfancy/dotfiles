@@ -1,0 +1,331 @@
+/home/obviousfancy/Documents/obviousfancy/dotfiles/scripts/hardware-tools.sh: line 242: check_not_root: command not found
+/home/obviousfancy/Documents/obviousfancy/dotfiles/scripts/hardware-tools.sh: line 243: check_internet: command not found
+/home/obviousfancy/Documents/obviousfancy/dotfiles/scripts/hardware-tools.sh: line 24: section: command not found
+/home/obviousfancy/Documents/obviousfancy/dotfiles/scripts/hardware-tools.sh: line 25: log: command not found
+/home/obviousfancy/Documents/obviousfancy/dotfiles/scripts/hardware-tools.sh: line 52: warn: command not found
+/home/obviousfancy/Documents/obviousfancy/dotfiles/scripts/hardware-tools.sh: line 67: section: command not found
+/home/obviousfancy/Documents/obviousfancy/dotfiles/scripts/hardware-tools.sh: line 68: log: command not found
+[0;31m[✗][0m No ejecutes este script como root (sudo).
+[0;31m[✗][0m El script pide sudo solo cuando lo necesita.
+[0;31m[✗][0m No ejecutes este script como root (sudo).
+[0;31m[✗][0m El script pide sudo solo cuando lo necesita.
+[0;31m[✗][0m No ejecutes este script como root (sudo).
+[0;31m[✗][0m El script pide sudo solo cuando lo necesita.
+[0;31m[✗][0m No ejecutes este script como root (sudo).
+[0;31m[✗][0m El script pide sudo solo cuando lo necesita.
+[0;31m[✗][0m No ejecutes este script como root (sudo).
+[0;31m[✗][0m El script pide sudo solo cuando lo necesita.
+🚀 Iniciando instalación de Arduino IDE...
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+⚠️  Cierra sesión y vuelve a entrar para que el grupo 'dialout' tome efecto.
+🚀 Iniciando instalación de Arduino IDE...
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+⚠️  Cierra sesión y vuelve a entrar para que el grupo 'dialout' tome efecto.
+🚀 Iniciando instalación de Arduino IDE...
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+⚠️  Cierra sesión y vuelve a entrar para que el grupo 'dialout' tome efecto.
+[H[2J[3J[1m[0;34m
+  ╔══════════════════════════════════════╗
+  ║      🔧  Hardware Tools              ║
+  ╚══════════════════════════════════════╝
+[0m
+[1m
+  ┌─────────────────────────────────────┐
+  │  Sistema detectado                  │
+  ├─────────────────────────────────────┤
+  │  OS:   Ubuntu 26.04 LTS              │
+  │  PKG:  apt                           │
+  └─────────────────────────────────────┘
+[0m
+  Selecciona qué instalar:
+
+  [0;32m1)[0m KiCad             — EDA para PCB y esquemáticos
+  [0;32m2)[0m Arduino IDE 2     — Placas Arduino / ESP32
+  [0;32m3)[0m LaTeX             — Redacción técnica y reportes
+  [0;32m4)[0m Vivado            — FPGA (AMD/Xilinx)
+  [0;32ma)[0m Todo              — Instalar todas las herramientas
+  [0;31mq)[0m Volver al menú principal
+
+🚀 Iniciando instalación de Arduino IDE...
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+(false, '')
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+⚠️  Cierra sesión y vuelve a entrar para que el grupo 'dialout' tome efecto.
+
+[H[2J[3J[1m[0;34m
+  ╔══════════════════════════════════════╗
+  ║      🔧  Hardware Tools              ║
+  ╚══════════════════════════════════════╝
+[0m
+[1m
+  ┌─────────────────────────────────────┐
+  │  Sistema detectado                  │
+  ├─────────────────────────────────────┤
+  │  OS:   Ubuntu 26.04 LTS              │
+  │  PKG:  apt                           │
+  └─────────────────────────────────────┘
+[0m
+  Selecciona qué instalar:
+
+  [0;32m1)[0m KiCad             — EDA para PCB y esquemáticos
+  [0;32m2)[0m Arduino IDE 2     — Placas Arduino / ESP32
+  [0;32m3)[0m LaTeX             — Redacción técnica y reportes
+  [0;32m4)[0m Vivado            — FPGA (AMD/Xilinx)
+  [0;32ma)[0m Todo              — Instalar todas las herramientas
+  [0;31mq)[0m Volver al menú principal
+
+🚀 Iniciando instalación de Arduino IDE...
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+(false, '')
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+⚠️  Cierra sesión y vuelve a entrar para que el grupo 'dialout' tome efecto.
+
+[H[2J[3J[1m[0;34m
+  ╔══════════════════════════════════════╗
+  ║      🔧  Hardware Tools              ║
+  ╚══════════════════════════════════════╝
+[0m
+[1m
+  ┌─────────────────────────────────────┐
+  │  Sistema detectado                  │
+  ├─────────────────────────────────────┤
+  │  OS:   Ubuntu 26.04 LTS              │
+  │  PKG:  apt                           │
+  └─────────────────────────────────────┘
+[0m
+  Selecciona qué instalar:
+
+  [0;32m1)[0m KiCad             — EDA para PCB y esquemáticos
+  [0;32m2)[0m Arduino IDE 2     — Placas Arduino / ESP32
+  [0;32m3)[0m LaTeX             — Redacción técnica y reportes
+  [0;32m4)[0m Vivado            — FPGA (AMD/Xilinx)
+  [0;32ma)[0m Todo              — Instalar todas las herramientas
+  [0;31mq)[0m Volver al menú principal
+
+🚀 Iniciando instalación de Arduino IDE...
+rm ok
+mv ok
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+(false, '')
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+⚠️  Cierra sesión y vuelve a entrar para que el grupo 'dialout' tome efecto.
+
+[H[2J[3J[1m[0;34m
+  ╔══════════════════════════════════════╗
+  ║      🔧  Hardware Tools              ║
+  ╚══════════════════════════════════════╝
+[0m
+[1m
+  ┌─────────────────────────────────────┐
+  │  Sistema detectado                  │
+  ├─────────────────────────────────────┤
+  │  OS:   Ubuntu 26.04 LTS              │
+  │  PKG:  apt                           │
+  └─────────────────────────────────────┘
+[0m
+  Selecciona qué instalar:
+
+  [0;32m1)[0m KiCad             — EDA para PCB y esquemáticos
+  [0;32m2)[0m Arduino IDE 2     — Placas Arduino / ESP32
+  [0;32m3)[0m LaTeX             — Redacción técnica y reportes
+  [0;32m4)[0m Vivado            — FPGA (AMD/Xilinx)
+  [0;32ma)[0m Todo              — Instalar todas las herramientas
+  [0;31mq)[0m Volver al menú principal
+
+🚀 Iniciando instalación de Arduino IDE...
+rm ok
+mv ok
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+(false, '')
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+⚠️  Cierra sesión y vuelve a entrar para que el grupo 'dialout' tome efecto.
+
+[H[2J[3J[1m[0;34m
+  ╔══════════════════════════════════════╗
+  ║      🔧  Hardware Tools              ║
+  ╚══════════════════════════════════════╝
+[0m
+[1m
+  ┌─────────────────────────────────────┐
+  │  Sistema detectado                  │
+  ├─────────────────────────────────────┤
+  │  OS:   Ubuntu 26.04 LTS              │
+  │  PKG:  apt                           │
+  └─────────────────────────────────────┘
+[0m
+  Selecciona qué instalar:
+
+  [0;32m1)[0m KiCad             — EDA para PCB y esquemáticos
+  [0;32m2)[0m Arduino IDE 2     — Placas Arduino / ESP32
+  [0;32m3)[0m LaTeX             — Redacción técnica y reportes
+  [0;32m4)[0m Vivado            — FPGA (AMD/Xilinx)
+  [0;32ma)[0m Todo              — Instalar todas las herramientas
+  [0;31mq)[0m Volver al menú principal
+
+🚀 Iniciando instalación de Arduino IDE...
+rm ok
+mv ok
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+(false, '')
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+
+[H[2J[3J[1m[0;34m
+  ╔══════════════════════════════════════╗
+  ║      🔧  Hardware Tools              ║
+  ╚══════════════════════════════════════╝
+[0m
+[1m
+  ┌─────────────────────────────────────┐
+  │  Sistema detectado                  │
+  ├─────────────────────────────────────┤
+  │  OS:   Ubuntu 26.04 LTS              │
+  │  PKG:  apt                           │
+  └─────────────────────────────────────┘
+[0m
+  Selecciona qué instalar:
+
+  [0;32m1)[0m KiCad             — EDA para PCB y esquemáticos
+  [0;32m2)[0m Arduino IDE 2     — Placas Arduino / ESP32
+  [0;32m3)[0m LaTeX             — Redacción técnica y reportes
+  [0;32m4)[0m Vivado            — FPGA (AMD/Xilinx)
+  [0;32ma)[0m Todo              — Instalar todas las herramientas
+  [0;31mq)[0m Volver al menú principal
+
+🚀 Iniciando instalación de Arduino IDE...
+rm ok
+mv ok
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+(false, '')
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+
+[H[2J[3J[1m[0;34m
+  ╔══════════════════════════════════════╗
+  ║      🔧  Hardware Tools              ║
+  ╚══════════════════════════════════════╝
+[0m
+[1m
+  ┌─────────────────────────────────────┐
+  │  Sistema detectado                  │
+  ├─────────────────────────────────────┤
+  │  OS:   Ubuntu 26.04 LTS              │
+  │  PKG:  apt                           │
+  └─────────────────────────────────────┘
+[0m
+  Selecciona qué instalar:
+
+  [0;32m1)[0m KiCad             — EDA para PCB y esquemáticos
+  [0;32m2)[0m Arduino IDE 2     — Placas Arduino / ESP32
+  [0;32m3)[0m LaTeX             — Redacción técnica y reportes
+  [0;32m4)[0m Vivado            — FPGA (AMD/Xilinx)
+  [0;32ma)[0m Todo              — Instalar todas las herramientas
+  [0;31mq)[0m Volver al menú principal
+
+🚀 Iniciando instalación de Arduino IDE...
+rm ok
+mv ok
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+🔗 Creando comando 'arduino-ide' en terminal...
+🖥️  Creando acceso directo en el menú...
+(false, '')
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+
+[H[2J[3J[1m[0;34m
+  ╔══════════════════════════════════════╗
+  ║      🔧  Hardware Tools              ║
+  ╚══════════════════════════════════════╝
+[0m
+[1m
+  ┌─────────────────────────────────────┐
+  │  Sistema detectado                  │
+  ├─────────────────────────────────────┤
+  │  OS:   Ubuntu 26.04 LTS              │
+  │  PKG:  apt                           │
+  └─────────────────────────────────────┘
+[0m
+  Selecciona qué instalar:
+
+  [0;32m1)[0m KiCad             — EDA para PCB y esquemáticos
+  [0;32m2)[0m Arduino IDE 2     — Placas Arduino / ESP32
+  [0;32m3)[0m LaTeX             — Redacción técnica y reportes
+  [0;32m4)[0m Vivado            — FPGA (AMD/Xilinx)
+  [0;32ma)[0m Todo              — Instalar todas las herramientas
+  [0;31mq)[0m Volver al menú principal
+
+🚀 Iniciando instalación de Arduino IDE...
+rm ok
+mv ok
+🔑 Asignando permisos...
+🔒 Configurando sandbox...
+🔌 Agregando usuario al grupo dialout...
+⚙️  Creando configuración del CLI...
+🔗 Creando comando 'arduino-ide' en terminal...
+🖥️  Creando acceso directo en el menú...
+(false, '')
+
+✅ Arduino IDE instalado correctamente en /opt/arduino-ide
+   Terminal: arduino-ide
+
+

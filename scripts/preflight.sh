@@ -10,7 +10,7 @@
 #   wait_for_file     → espera activamente hasta que el usuario descargue un archivo
 # =============================================================================
 
-source "$(dirname "$0")/detect-os.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/detect-os.sh"
 
 # =============================================================================
 # ESPERA ACTIVA — responde tu pregunta 3
@@ -25,34 +25,30 @@ source "$(dirname "$0")/detect-os.sh"
 # Cuando aparece, la función retorna la ruta del archivo.
 
 wait_for_file() {
-    local SEARCH_DIR="$1"   # Dónde buscar (ej: ~/Downloads)
-    local PATTERN="$2"      # Nombre del archivo con wildcards (ej: "st-stm32*.sh")
-    local APP_NAME="$3"     # Nombre para mostrar al usuario (ej: "STM32CubeIDE")
+    local SEARCH_DIR="$1"
+    local PATTERN="$2"
+    local APP_NAME="$3"
 
-    echo ""
-    echo -e "  ${YELLOW}⏳ Esperando descarga de ${BOLD}$APP_NAME${NC}${YELLOW}...${NC}"
-    echo -e "  Descarga el archivo y guárdalo en: ${CYAN}$SEARCH_DIR${NC}"
-    echo -e "  El script detectará automáticamente cuando aparezca."
-    echo -e "  Presiona ${RED}Ctrl+C${NC} para cancelar.\n"
+    echo "" >&2
+    echo -e "  ${YELLOW}⏳ Esperando descarga de ${BOLD}$APP_NAME${NC}${YELLOW}...${NC}" >&2
+    echo -e "  Descarga el archivo y guárdalo en: ${CYAN}$SEARCH_DIR${NC}" >&2
+    echo -e "  El script detectará automáticamente cuando aparezca." >&2
+    echo -e "  Presiona ${RED}Ctrl+C${NC} para cancelar.\n" >&2
 
     local FOUND=""
     local DOTS=0
 
-    # Loop infinito — sale cuando encuentra el archivo o el usuario cancela
     while true; do
-        # Buscar el archivo con el patrón dado
         FOUND=$(find "$SEARCH_DIR" -name "$PATTERN" 2>/dev/null | head -1)
 
         if [ -n "$FOUND" ]; then
-            echo ""
+            echo "" >&2
             success "Archivo detectado: $(basename "$FOUND")"
-            # "echo" con la variable retorna el valor al caller via $()
-            echo "$FOUND"
+            echo "$FOUND"   # ← único echo sin >&2 — este es el return value
             return 0
         fi
 
-        # Animación de puntos para que el usuario sepa que está activo
-        printf "\r  ${CYAN}Buscando%-*s${NC}" $((DOTS % 4 + 1)) "..."
+        printf "\r  ${CYAN}Buscando%-*s${NC}" $((DOTS % 4 + 1)) "..." >&2
         DOTS=$((DOTS + 1))
         sleep 5
     done
@@ -67,8 +63,8 @@ extract() {
     local TMPDIR
     TMPDIR=$(mktemp -d -t "${APP_NAME}-XXXXXX")
 
-    log "Extrayendo $(basename "$FILE") en $TMPDIR..."
-
+    #log "Extrayendo $(basename "$FILE") en $TMPDIR..."
+    echo "Extrayendo $(basename "$FILE")..." >&2
     case "$FILE" in
         *.zip)
             unzip -q "$FILE" -d "$TMPDIR"

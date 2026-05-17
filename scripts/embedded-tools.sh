@@ -4,11 +4,20 @@
 # Herramientas: ARM GCC, STM32CubeIDE, OpenOCD, bat, colores de terminal
 # =============================================================================
 
-source "$(dirname "$0")/preflight.sh"   # carga detect-os automáticamente
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SELF_DIR/preflight.sh"
 
-LOG_FILE="$(dirname "$0")/../logs/embedded-tools.log"
-mkdir -p "$(dirname "$LOG_FILE")"
-exec > >(tee -a "$LOG_FILE") 2>&1
+LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/logs"
+mkdir -p "$LOG_DIR"
+chmod 755 "$LOG_DIR"
+# Si el log existe y es de root, tomar ownership automáticamente
+if [ -f "$LOG_DIR/embedded-tools.log" ] && [ ! -w "$LOG_DIR/embedded-tools.log" ]; then
+    sudo chown "$USER":"$USER" "$LOG_DIR/embedded-tools.log"
+fi
+LOG_FILE="$LOG_DIR/embedded-tools.log"
+touch "$LOG_FILE"
+chmod 644 "$LOG_FILE"
+exec > >(tee -a "$LOG_FILE")
 
 # =============================================================================
 # FUNCIONES DE INSTALACIÓN
@@ -51,14 +60,14 @@ install_stm32cubeide() {
     log "Buscando instalador de STM32CubeIDE..."
 
     # CubeIDE — zip que contiene el .sh
-    INSTALLER=$(wait_for_file ~/Downloads "en.st-stm32cubeide_*.zip" "STM32CubeIDE")
+    INSTALLER=$(wait_for_file ~/Downloads "st-stm32cubeide_*.zip" "STM32CubeIDE")
     EXTRACTED=$(extract "$INSTALLER" "stm32cubeide")
     SH_INSTALLER=$(find "$EXTRACTED" -name "st-stm32cubeide_*.sh" | head -1)
     chmod +x "$SH_INSTALLER"
-    sudo "$SH_INSTALLER"
+    echo "y" | sudo "$SH_INSTALLER"
     rm -rf "$EXTRACTED"
 
-    if [ -d "/opt/stm32cubeide" ]; then
+    if [ -d "/opt/st" ]; then
         success "STM32CubeIDE instalado en /opt/stm32cubeide"
     else
         error "No se encontró la instalación después de ejecutar el instalador"
@@ -68,23 +77,66 @@ install_stm32cubeide() {
     # CubeMX — opcional
     read -rp "  ¿También instalar STM32CubeMX? [s/N]: " confirm
     if [[ "$confirm" =~ ^[sS]$ ]]; then
-        INSTALLERMX=$(wait_for_file ~/Downloads "en.stm32cubemx_*.zip" "STM32CubeMX")
+        INSTALLERMX=$(wait_for_file ~/Downloads "stm32cubemx-*.zip" "STM32CubeMX")
         EXTRACTED_MX=$(extract "$INSTALLERMX" "stm32cubemx")
         MX_INSTALLER=$(find "$EXTRACTED_MX" -name "SetupSTM32CubeMX*" -type f | head -1)
         chmod +x "$MX_INSTALLER"
         sudo "$MX_INSTALLER"
         rm -rf "$EXTRACTED_MX"
+
+        # Crear .desktop para STM32CubeMX solo si no existe ya
+CUBEMX_DESKTOP="/usr/share/applications/STM32CubeMX.desktop"
+LOCAL_CUBEMX_DESKTOP="$HOME/.local/share/applications/STM32CubeMX.desktop"
+
+if [ ! -f "$CUBEMX_DESKTOP" ] && [ ! -f "$LOCAL_CUBEMX_DESKTOP" ]; then
+    log "Creando .desktop para STM32CubeMX..."
+    mkdir -p ~/.local/share/applications
+    cat > "$LOCAL_CUBEMX_DESKTOP" << EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=STM32CubeMX
+Comment=STM32 Microcontroller Configuration Tool
+Exec=/usr/local/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX
+Icon=/usr/local/STMicroelectronics/STM32Cube/STM32CubeMX/help/STM32CubeMX.png
+Terminal=false
+Categories=Development;Electronics;
+StartupNotify=true
+EOF
+    chmod +x "$LOCAL_CUBEMX_DESKTOP"
+    update-desktop-database ~/.local/share/applications
+    success "STM32CubeMX .desktop creado"
+else
+    success "STM32CubeMX .desktop ya existe"
+fi
+
+# Symlink para terminal — solo si no existe
+if [ ! -f /usr/local/bin/stm32cubemx ]; then
+    sudo ln -sf /usr/local/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX \
+        /usr/local/bin/stm32cubemx
+fi
         success "STM32CubeMX instalado"
     fi
 
     # Reglas udev para ST-Link sin sudo
-    UDEV_RULES=$(find /opt/stm32cubeide -name "*.rules" 2>/dev/null | head -1)
+   UDEV_RULES=$(find /opt/st -name "*.rules" 2>/dev/null | head -1)
     if [ -n "$UDEV_RULES" ]; then
         sudo cp "$UDEV_RULES" /etc/udev/rules.d/
         sudo udevadm control --reload-rules
         sudo usermod -aG plugdev "$USER"
     fi
 
+    # Registrar .desktop sin necesidad de cerrar sesión
+    update-desktop-database ~/.local/share/applications
+    gtk-update-icon-cache -f -t ~/.local/share/icons 2>/dev/null || true
+    # En GNOME — recargar el shell para que aparezca en el launcher
+    if command -v gdbus &>/dev/null; then
+        gdbus call --session \
+            --dest org.gnome.Shell \
+            --object-path /org/gnome/Shell \    
+            --method org.gnome.Shell.Eval \
+            "Main.overview.hide();" 2>/dev/null || true
+    fi
     success "STM32CubeIDE instalado correctamente"
 }
 
